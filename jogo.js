@@ -5,9 +5,7 @@ const canvas = document.querySelector('canvas');
 const contexto = canvas.getContext('2d');
 
 var somDeColisao = new Audio();
-somDeColisao.src = './efeitos/hit.wav';
-
-
+somDeColisao.src = './efeitos-sonoros/hit.wav';
 
 function colisao(bird, chao){
     if ((bird >= chao - flappyBird.altura) || (bird < 1)){
@@ -22,7 +20,7 @@ const flappyBird = {
     spriteY: 0,
     largura: 34,
     altura: 24,
-    xDraw: 10,
+    xDraw: 15,
     yDraw: 50,
     gravidade: 0.25,
     velocidade: 0,
