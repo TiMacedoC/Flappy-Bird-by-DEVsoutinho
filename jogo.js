@@ -1,6 +1,8 @@
 const sprites = new Image();
 sprites.src = './sprites.png';
 
+var frames = 0;
+
 const canvas = document.querySelector('canvas');
 const contexto = canvas.getContext('2d');
 
@@ -39,6 +41,28 @@ const flappyBird = {
         flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade; 
         flappyBird.yDraw = flappyBird.yDraw + flappyBird.velocidade;
         
+        flappyBird.movimentoDasAsas();
+        
+    },
+    movimentoDasAsas: function(){
+        let intervaloDeFrames = 13;
+        let bateAsas = frames % intervaloDeFrames;
+        console.log(bateAsas);
+
+        if (bateAsas == 0){
+            if (flappyBird.spriteY == 0){
+                flappyBird.spriteY = 26;
+                console.log(flappyBird.spriteY);    
+            } else {
+                if (flappyBird.spriteY == 26){
+                    flappyBird.spriteY = 52; 
+                    console.log(flappyBird.spriteY);    
+                } else {
+                    flappyBird.spriteY = 0;
+                    console.log(flappyBird.spriteY);    
+                }
+            } 
+        }
     },
     desenha: function(){
         contexto.drawImage(
@@ -53,18 +77,32 @@ const flappyBird = {
 
 const chao = {
     spriteX: 0,
-    spriteY: 611,
+    spriteY: 610,
     largura: 224,
     altura: 111,
     xDraw: 0,
     yDraw: 369,
+    atualiza: function(){
+        if (chao.xDraw > -112){
+            chao.xDraw--;
+        } else{
+            chao.xDraw = 0;
+        }
+    },
     desenha: function(){
             contexto.drawImage(
             sprites,
             chao.spriteX, chao.spriteY,
             chao.largura, chao.altura,
             chao.xDraw, chao.yDraw,
-            chao.largura + 96, chao.altura,
+            chao.largura, chao.altura,
+        );
+        contexto.drawImage(
+            sprites,
+            chao.spriteX, chao.spriteY,
+            chao.largura, chao.altura,
+            (chao.xDraw + chao.largura), chao.yDraw,
+            chao.largura, chao.altura,
         );
     }
 
@@ -107,6 +145,7 @@ const telaDeInicio = {
             telaDeInicio.xDraw, telaDeInicio.yDraw,
             telaDeInicio.largura, telaDeInicio.altura,
         );
+        flappyBird.movimentoDasAsas();
     }
 
 }
@@ -147,17 +186,18 @@ const telas = {
         chao.desenha();
         flappyBird.desenha();
         telaDeInicio.desenha();
+        
         },
         click(){
             mudaParaTela(telasJogo); 
         },
         atualiza() {
-
+            chao.atualiza();
         }
     },
     fimDeJogo: {
         desenha(){
-                fundo.desenha();
+            fundo.desenha();
             chao.desenha();
             telaGameOver.desenha();
             flappyBird.desenha();
@@ -187,6 +227,7 @@ const telasJogo = {
     },
     atualiza(){
         flappyBird.atualiza();
+        chao.atualiza();
     }
 }
 
@@ -194,7 +235,7 @@ const telasJogo = {
 function loop(){
     telaAtiva.desenha();
     telaAtiva.atualiza();
-    
+    frames++;
     requestAnimationFrame(loop);
 }
 
@@ -209,3 +250,5 @@ function jogar(){
        telaAtiva.click();
     }
 }
+
+//coment
