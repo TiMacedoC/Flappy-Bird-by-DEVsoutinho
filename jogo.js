@@ -5,6 +5,7 @@ var frames = 0;
 
 const canvas = document.querySelector('canvas');
 const contexto = canvas.getContext('2d');
+contexto.font = '50px serif';
 
 var sounds = {
     somDeColisao: new Audio("./efeitos-sonoros/hit.wav"),
@@ -20,7 +21,7 @@ function colisao(bird, chao) {
     }
 }
 
-// detecta colisão com o chão
+// detecta colisão com os canos
 function temColisaoComOFlappyBird(draw) {
     let canoChaoY = draw.y + canos.altura + canos.espaco;
 
@@ -36,13 +37,15 @@ function temColisaoComOFlappyBird(draw) {
     };
 };
 
-
-
+// função que define o intervalo em que as coisas vão acontecer. 
+// Basta chamar a função passando o intervalo como parâmetro e verificar o retorno
 function frameTime(interval) {
-    let intervaloDeFrames = interval;
-    var setFrameInterval = frames % intervaloDeFrames;
-    return setFrameInterval;
-}
+    let checkFrame = frames % interval;
+    if (checkFrame == 0) {
+        return true
+    } else { return false };
+};
+
 const flappyBird = {
     spriteX: 0,
     spriteY: 0,
@@ -70,9 +73,7 @@ const flappyBird = {
 
     },
     movimentoDasAsas: function () {
-        let bateAsas = frameTime(13);
-
-        if (bateAsas == 0) {
+        if (frameTime(13)) {
             if (flappyBird.spriteY == 0) {
                 flappyBird.spriteY = 26;
             } else {
@@ -93,7 +94,7 @@ const flappyBird = {
             flappyBird.largura, flappyBird.altura,
         );
     }
-}
+};
 
 const canos = {
     largura: 52,
@@ -111,30 +112,28 @@ const canos = {
     drawCanos: [],
     atualiza: function () {
         // para mudar a velocidade dos canos basta alterar o valor passado para a função FrameTime
-        // Quanto maior o valor, mais lento o cano anda;
-        let checkFrame = frameTime(1);
-        if (checkFrame == 0) {
+        // Quanto maior o valor, mais lento o cano anda; tem que ser mexido junto com a frequencia
+        if (frameTime(1)) {
             canos.drawCanos.forEach(function (draw) {
                 draw.x--
 
                 if (temColisaoComOFlappyBird(draw)) {
-                    console.log("perdeu");
+                    sounds.somDeColisao.play();
+                    mudaParaTela(telas.fimDeJogo);
+                    return;
                 };
 
                 // limpa o array para otimizar a memoria mantem sempre 5 canos na memoria
                 if (draw.x + canos.largura <= 0) {
                     canos.drawCanos.shift();
-                    console.log(canos.drawCanos.length);
                 };
             });
         }
         // define a frequencia com que os canos aparecerão na tela
-        let checkFrame2 = frameTime(200);
-        if (checkFrame2 == 0) {
+        if (frameTime(150)) {
             canos.drawCanos.push({
                 x: canvas.width,
                 //aqui é definida a altura do cano max:-360 e min: -145
-                //y: -440
                 y: Math.floor(Math.random() * (-355 - -145 + 1)) - 145
             })
         };
@@ -168,7 +167,6 @@ const canos = {
     },
 };
 
-
 const chao = {
     spriteX: 0,
     spriteY: 610,
@@ -200,7 +198,7 @@ const chao = {
         );
     }
 
-}
+};
 
 const fundo = {
     spriteX: 391,
@@ -222,6 +220,23 @@ const fundo = {
         );
     }
 
+};
+
+const placar = {
+    pontos: 0,
+    desenha: function () {
+
+        contexto.font = '35px "VT323"';
+        contexto.textAlign = 'right';
+        contexto.fillStyle = 'white';
+        contexto.fillText(placar.pontos, 310, 33);
+    },
+
+    atualiza: function () {
+        if (frameTime(20)) {
+            placar.pontos++;
+        };
+    }
 }
 
 const telaDeInicio = {
@@ -242,7 +257,7 @@ const telaDeInicio = {
         flappyBird.movimentoDasAsas();
     }
 
-}
+};
 
 const telaGameOver = {
     spriteX: 134,
@@ -261,8 +276,7 @@ const telaGameOver = {
         );
     }
 
-}
-
+};
 
 //
 // [TELAS]
@@ -272,7 +286,6 @@ function mudaParaTela(novatela) {
     telaAtiva = novatela;
 }
 
-
 const telas = {
     inicio: {
         desenha() {
@@ -280,7 +293,7 @@ const telas = {
             flappyBird.desenha();
             telaDeInicio.desenha();
             chao.desenha();
-
+            placar.desenha();
         },
         click() {
             mudaParaTela(telasJogo);
@@ -293,17 +306,23 @@ const telas = {
     fimDeJogo: {
         desenha() {
             fundo.desenha();
+            canos.desenha();
             chao.desenha();
             telaGameOver.desenha();
             flappyBird.desenha();
+            placar.desenha();
         },
+
         click() {
             flappyBird.yDraw = 50;
             flappyBird.gravidade = 0.25;
             flappyBird.velocidade = 0;
             flappyBird.pulo = 4.6;
+            frames = 0;
+            placar.pontos = 0;
             canos.drawCanos.splice(0, canos.drawCanos.length);
             mudaParaTela(telas.inicio);
+
         },
         atualiza() {
 
@@ -311,13 +330,13 @@ const telas = {
     }
 }
 
-
 const telasJogo = {
     desenha() {
         fundo.desenha();
         canos.desenha();
         flappyBird.desenha();
         chao.desenha();
+        placar.desenha();
     },
     click() {
         flappyBird.pula();
@@ -326,9 +345,9 @@ const telasJogo = {
         flappyBird.atualiza();
         canos.atualiza();
         chao.atualiza();
+        placar.atualiza();
     }
 }
-
 
 function loop() {
     telaAtiva.desenha();
@@ -340,10 +359,17 @@ function loop() {
 mudaParaTela(telas.inicio);
 loop();
 
-function jogar() {
+// pra joga pressionando barra de espaço ou click do mouse 
+window.addEventListener('keydown', (e) => {
+    if (e.code === "Space") {
+        if (telaAtiva.click) {
+            telaAtiva.click();
+        }
+    };
+});
+
+window.addEventListener('click', function () {
     if (telaAtiva.click) {
         telaAtiva.click();
     }
-}
-
-// atualizado 16/04 parei no video 05 no minuto 13
+});
