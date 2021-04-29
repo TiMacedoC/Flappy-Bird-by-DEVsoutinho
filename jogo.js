@@ -9,7 +9,8 @@ contexto.font = '50px serif';
 
 var sounds = {
     somDeColisao: new Audio("./efeitos-sonoros/hit.wav"),
-    somDePulo: new Audio('./efeitos-sonoros/pulo.wav')
+    somDePulo: new Audio('./efeitos-sonoros/pulo.wav'),
+    somDePonto: new Audio('./efeitos-sonoros/ponto.wav')
 }
 
 // detecta colisão com o chão
@@ -24,7 +25,6 @@ function colisao(bird, chao) {
 // detecta colisão com os canos
 function temColisaoComOFlappyBird(draw) {
     let canoChaoY = draw.y + canos.altura + canos.espaco;
-
 
     if (
         ((flappyBird.xDraw + flappyBird.largura) >= draw.x) &&
@@ -53,8 +53,8 @@ const flappyBird = {
     altura: 24,
     xDraw: 15,
     yDraw: 50,
-    gravidade: 0.25,
-    velocidade: 0,
+    gravidade: 0.25, //velocidade com que o passarinho cai
+    velocidade: 0, //idem
     pulo: 4.6,
     pula() {
         flappyBird.velocidade = - flappyBird.pulo;
@@ -107,7 +107,7 @@ const canos = {
         spriteX: 52,
         spriteY: 169,
     },
-    espaco: 80,
+    espaco: 90, //espaço entre os canos
 
     drawCanos: [],
     atualiza: function () {
@@ -127,6 +127,11 @@ const canos = {
                 if (draw.x + canos.largura <= 0) {
                     canos.drawCanos.shift();
                 };
+
+                if (draw.x + canos.largura <= 10) {
+                    sounds.somDePonto.play();;
+                };
+
             });
         }
         // define a frequencia com que os canos aparecerão na tela
@@ -134,6 +139,7 @@ const canos = {
             canos.drawCanos.push({
                 x: canvas.width,
                 //aqui é definida a altura do cano max:-360 e min: -145
+                //y: -370 //se quiser deixar fixo para testar
                 y: Math.floor(Math.random() * (-355 - -145 + 1)) - 145
             })
         };
@@ -224,6 +230,7 @@ const fundo = {
 
 const placar = {
     pontos: 0,
+    best: 0,
     desenha: function () {
 
         contexto.font = '35px "VT323"';
@@ -236,6 +243,23 @@ const placar = {
         if (frameTime(20)) {
             placar.pontos++;
         };
+    },
+
+    mostraScore: function () {
+        contexto.font = '28px "VT323"';
+        contexto.textAlign = 'right';
+        contexto.fillStyle = 'white';
+        contexto.fillText(placar.pontos, 253, 146);
+    },
+
+    mostraBest: function () {
+        if (this.pontos > this.best) {
+            this.best = this.pontos;
+        }
+        contexto.font = '28px "VT323"';
+        contexto.textAlign = 'right';
+        contexto.fillStyle = 'white';
+        contexto.fillText(placar.best, 253, 187);
     }
 }
 
@@ -257,6 +281,67 @@ const telaDeInicio = {
         flappyBird.movimentoDasAsas();
     }
 
+};
+
+const medalhas = {
+    largura: 44,
+    altura: 44,
+    xDraw: 73,
+    yDraw: 138,
+
+    thanksBro: {
+        spriteX: 0,
+        spriteY: 78,
+    },
+
+    bronze: {
+        spriteX: 48,
+        spriteY: 124,
+    },
+
+    prata: {
+        spriteX: 48,
+        spriteY: 78,
+    },
+
+    ouro: {
+        spriteX: 0,
+        spriteY: 124,
+    },
+
+    desenha: function (pontos) {
+        let medalhaGanha;
+
+        if ((pontos > 0) && (pontos <= 50)) {
+            console.log('entrou');
+            return;
+        } else {
+            if ((pontos > 50) && (pontos <= 100)) {
+                medalhaGanha = medalhas.thanksBro;
+            } else {
+                if ((pontos > 100) && (pontos <= 150)) {
+                    medalhaGanha = medalhas.bronze;
+                } else {
+                    if ((pontos > 150) && (pontos <= 200)) {
+                        medalhaGanha = medalhas.prata;
+                    } else {
+                        medalhaGanha = medalhas.ouro;
+                    }
+                }
+            }
+        };
+
+
+
+
+        contexto.drawImage(
+            sprites,
+            medalhaGanha.spriteX, medalhaGanha.spriteY,
+            medalhas.largura, medalhas.altura,
+            medalhas.xDraw, medalhas.yDraw,
+            medalhas.largura, medalhas.altura,
+        )
+    }
 };
 
 const telaGameOver = {
@@ -309,6 +394,9 @@ const telas = {
             canos.desenha();
             chao.desenha();
             telaGameOver.desenha();
+            medalhas.desenha(placar.pontos);
+            placar.mostraScore();
+            placar.mostraBest();
             flappyBird.desenha();
             placar.desenha();
         },
@@ -373,3 +461,5 @@ window.addEventListener('click', function () {
         telaAtiva.click();
     }
 });
+
+//finalizado 28/04
