@@ -23,13 +23,13 @@ function colisao(bird, chao) {
 }
 
 // detecta colisão com os canos
-function temColisaoComOFlappyBird(draw) {
+function colisaoComCano(draw) {
     let canoChaoY = draw.y + canos.altura + canos.espaco;
 
     if (
-        ((flappyBird.xDraw + flappyBird.largura) >= draw.x) &&
-        ((flappyBird.yDraw < draw.y + canos.altura) ||
-            ((flappyBird.yDraw + flappyBird.altura) > canoChaoY))
+        ((flappyBird.xDraw + flappyBird.largura - 5) > draw.x) &&
+        ((flappyBird.yDraw + 5 < draw.y + canos.altura) ||
+            ((flappyBird.yDraw + flappyBird.altura - 5) > canoChaoY))
     ) {
         return true;
     } else {
@@ -117,7 +117,7 @@ const canos = {
             canos.drawCanos.forEach(function (draw) {
                 draw.x--
 
-                if (temColisaoComOFlappyBird(draw)) {
+                if (colisaoComCano(draw)) {
                     sounds.somDeColisao.play();
                     mudaParaTela(telas.fimDeJogo);
                     return;
@@ -128,8 +128,10 @@ const canos = {
                     canos.drawCanos.shift();
                 };
 
-                if (draw.x + canos.largura <= 10) {
-                    sounds.somDePonto.play();;
+                if (draw.x + canos.largura == 10) {
+                    sounds.somDePonto.play();
+                    placar.pontos++
+
                 };
 
             });
@@ -139,7 +141,7 @@ const canos = {
             canos.drawCanos.push({
                 x: canvas.width,
                 //aqui é definida a altura do cano max:-360 e min: -145
-                //y: -370 //se quiser deixar fixo para testar
+                //y: -370 //se quiser deixar fixo para testes
                 y: Math.floor(Math.random() * (-355 - -145 + 1)) - 145
             })
         };
@@ -240,9 +242,9 @@ const placar = {
     },
 
     atualiza: function () {
-        if (frameTime(20)) {
-            placar.pontos++;
-        };
+        //     if (frameTime(20)) {
+        //         placar.pontos++;
+        //     };
     },
 
     mostraScore: function () {
@@ -312,17 +314,16 @@ const medalhas = {
     desenha: function (pontos) {
         let medalhaGanha;
 
-        if ((pontos > 0) && (pontos <= 50)) {
-            console.log('entrou');
+        if ((pontos >= 0) && (pontos <= 10)) {
             return;
         } else {
-            if ((pontos > 50) && (pontos <= 100)) {
+            if ((pontos > 10) && (pontos <= 20)) {
                 medalhaGanha = medalhas.thanksBro;
             } else {
-                if ((pontos > 100) && (pontos <= 150)) {
+                if ((pontos > 20) && (pontos <= 40)) {
                     medalhaGanha = medalhas.bronze;
                 } else {
-                    if ((pontos > 150) && (pontos <= 200)) {
+                    if ((pontos > 40) && (pontos <= 99)) {
                         medalhaGanha = medalhas.prata;
                     } else {
                         medalhaGanha = medalhas.ouro;
