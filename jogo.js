@@ -24,12 +24,26 @@ function colisao(bird, chao) {
 
 // detecta colisão com os canos
 function colisaoComCano(draw) {
-    let canoChaoY = draw.y + canos.altura + canos.espaco;
+    let cano = {
+        baseDoCanoChao: draw.y + canos.altura + canos.espaco,
+        baseDoCanoCeu: draw.y + canos.altura,
+        esquerdaDoCano: draw.x,
+        direitaDoCano: draw.x + canos.largura,
+    }
+
+    let bird = {
+        bicoDoBird: flappyBird.xDraw + flappyBird.largura - 7,
+        costasDoBird: flappyBird.xDraw,
+        cabecaDoBird: flappyBird.yDraw + 5,
+        peDoBird: flappyBird.yDraw + flappyBird.altura - 5,
+    }
 
     if (
-        ((flappyBird.xDraw + flappyBird.largura - 5) > draw.x) &&
-        ((flappyBird.yDraw + 5 < draw.y + canos.altura) ||
-            ((flappyBird.yDraw + flappyBird.altura - 5) > canoChaoY))
+        (((bird.bicoDoBird) > cano.esquerdaDoCano) &&
+            ((cano.direitaDoCano) > bird.costasDoBird))
+        &&
+        ((bird.cabecaDoBird < cano.baseDoCanoCeu) ||
+            ((bird.peDoBird) > cano.baseDoCanoChao))
     ) {
         return true;
     } else {
@@ -141,7 +155,7 @@ const canos = {
             canos.drawCanos.push({
                 x: canvas.width,
                 //aqui é definida a altura do cano max:-360 e min: -145
-                //y: -370 //se quiser deixar fixo para testes
+                //y: -canos.altura - 60  //se quiser deixar fixo para testes
                 y: Math.floor(Math.random() * (-355 - -145 + 1)) - 145
             })
         };
@@ -241,12 +255,6 @@ const placar = {
         contexto.fillText(placar.pontos, 310, 33);
     },
 
-    atualiza: function () {
-        //     if (frameTime(20)) {
-        //         placar.pontos++;
-        //     };
-    },
-
     mostraScore: function () {
         contexto.font = '28px "VT323"';
         contexto.textAlign = 'right';
@@ -314,23 +322,18 @@ const medalhas = {
     desenha: function (pontos) {
         let medalhaGanha;
 
-        if ((pontos >= 0) && (pontos <= 10)) {
+        if ((pontos >= 0) && (pontos <= 9)) {
             return;
+        } else if ((pontos > 9) && (pontos <= 19)) {
+            medalhaGanha = medalhas.thanksBro;
+        } else if ((pontos > 19) && (pontos <= 39)) {
+            medalhaGanha = medalhas.bronze;
+        } else if ((pontos > 39) && (pontos <= 99)) {
+            medalhaGanha = medalhas.prata;
         } else {
-            if ((pontos > 10) && (pontos <= 20)) {
-                medalhaGanha = medalhas.thanksBro;
-            } else {
-                if ((pontos > 20) && (pontos <= 40)) {
-                    medalhaGanha = medalhas.bronze;
-                } else {
-                    if ((pontos > 40) && (pontos <= 99)) {
-                        medalhaGanha = medalhas.prata;
-                    } else {
-                        medalhaGanha = medalhas.ouro;
-                    }
-                }
-            }
-        };
+            medalhaGanha = medalhas.ouro;
+        }
+
 
 
 
@@ -434,7 +437,6 @@ const telasJogo = {
         flappyBird.atualiza();
         canos.atualiza();
         chao.atualiza();
-        placar.atualiza();
     }
 }
 
@@ -463,4 +465,4 @@ window.addEventListener('click', function () {
     }
 });
 
-//finalizado 28/04
+//finalizado 30/04

@@ -1,4 +1,4 @@
-# Flappy-Bird-by-DEVsoutinho
+# Flappy-Bird-by-devSoutinho
 
 Jogo Criado com base na série de videos do canal Dev Soutinho do Mario Souto
 
