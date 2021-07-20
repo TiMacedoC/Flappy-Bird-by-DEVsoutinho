@@ -1,8 +1,7 @@
 # Flappy-Bird-by-devSoutinho
 
-Projeto Rodando 
-https://codepen.io/Timacedoc/full/zYNQKxd
+Projeto rodando [aqui](https://codepen.io/Timacedoc/full/zYNQKxd)
 
-Jogo Criado com base na série de videos do canal Dev Soutinho do Mario Souto
+Jogo Criado com base na série de videos do canal [Dev Soutinho](https://www.youtube.com/c/DevSoutinho/featured) do Mario Souto
 
-https://www.youtube.com/c/DevSoutinho/featured
+
